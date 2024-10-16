@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
         // const filePath = path.join(process.cwd(), 'public', dir);
         const partialPath = req.url.replace('/assets', '');
         const filePath = path.join(process.cwd(), 'public', ...partialPath.split('/').slice(4));
+        console.log(`partialPath is: ${partialPath}`);
         console.log(`filepath is: ${filePath}`);
 
         // Read and serve the file

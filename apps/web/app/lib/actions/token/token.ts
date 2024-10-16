@@ -11,7 +11,7 @@ export async function uploadImageToServer(imageFile: File | null): Promise<strin
             console.error('No image file provided');
             return '';
         }
-        const uploadDir = path.join(process.cwd(), 'public', 'token-metadata');
+        const uploadDir = path.join(process.cwd(), 'public', 'tokenmetadata');
         try {
             await fs.access(uploadDir);
         } catch {
@@ -40,15 +40,15 @@ export async function saveTokenMetadata(name: string, symbol: string, descriptio
         "name": name,
         "symbol":symbol,
         "description": description,
-        "image": path.join(process.env.NEXTAUTH_URL || '','api','token-metadata', imageUrl)
+        "image": path.join(process.env.NEXTAUTH_URL || '','api','tokenmetadata', imageUrl)
     };
     
     const jsonContent = JSON.stringify(metadataJson, null, 2);
-    const filePath = path.join(process.cwd(),'public','token-metadata', symbol+'-metadata.json');
+    const filePath = path.join(process.cwd(),'public','tokenmetadata', symbol+'metadata.json');
     
     await fs.writeFile(filePath, jsonContent, 'utf8');
     console.log(`Metadata JSON file created at: ${filePath}`);
-    return path.join(process.env.NEXTAUTH_URL || '','api', 'token-metadata', symbol+'-metadata.json')
+    return path.join(process.env.NEXTAUTH_URL || '','api', 'tokenmetadata', symbol+'metadata.json')
 }
 
 export async function saveToken(wallet:string, name: string, symbol: string, description: string, image: string, initSupply: number, tokenPubKey:string): Promise<boolean> {
