@@ -1,0 +1,36 @@
+name: Build and Deploy to VM via Docker Hub
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Cleanup image and checkout
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        run: ./checkout.sh
+
+    - name: Prepare environment variables
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        run: ./prepare_env.sh ${{ secrets.NEXTAUTH_URL }}
+
+    - name: Build image and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          docker build -t crypto-function .
+          docker run --name crypto-function crypto-function
