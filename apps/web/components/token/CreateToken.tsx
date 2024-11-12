@@ -169,9 +169,9 @@ export const CreateToken = () => {
                     console.log(metadataUri);
                     const token = await createToken(connection, wallet, name, symbol,description, metadataUri, initSupply, decimals);
                     //const sign = mintToken(connection, wallet,new PublicKey('ENYYVshzF1wR1N8sckVxpP4EFJoCNWYXVqjJdh23w6JV'),'5wBddGeBcyr2ejBxzJ2R4XBYfZPFbUPgRctP2xnhZ4MQ',2);
-                    // console.log(sign);
+                    console.log(token);
                     const res = await saveToken(wallet.publicKey?.toString()||"", name, symbol, description, image, initSupply, token);
-                    if(true) {
+                    if(res) {
                         toast.success("Token created successfully");
                         setName("");
                         setSymbol("");

@@ -1,7 +1,11 @@
 JWT_SECRET=secret
-NEXTAUTH_URL=http://localhost:3000
+# NEXTAUTH_URL=http://localhost:3000
 AUTH_SECRET=secret
 DATABASE_URL="postgres://avnadmin:XXXXXXXXXXXXXXXXXXXXX@daily-code-k-XXXXXXX-project1.b.aivencloud.com:24437/XXXXXXXXXXXX?sslmode=require"
 SOLANA_ENDPOINT="https://api.devnet.solana.com"
 GOOGLE_CLIENT_ID="xxxxxxxxxxxxxxxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxx"
+GMAIL_USER="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@gmail.com"
+GMAIL_PASSWORD="xxxxxxxxxXXXX"
+#RECLAIM_CALLBACK_URL=https://cryptoconsulting.tech/api/profile/zkproof
+RECLAIM_APP_SECRET=xxxxxxxxxxxxxxxxxx

@@ -23,38 +23,43 @@ export async function createToken(connection: Connection, wallet: WalletContextS
 
     const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen);
 
+    const createAccountInstruction = SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: mintLen,
+        lamports,
+        programId: TOKEN_2022_PROGRAM_ID,
+    })
+    const initializeMetadataPointerInstruction = createInitializeMetadataPointerInstruction(mintKeypair.publicKey, wallet.publicKey, mintKeypair.publicKey, TOKEN_2022_PROGRAM_ID)
+    const initializeMintInstruction = createInitializeMintInstruction(mintKeypair.publicKey, decimals, wallet.publicKey, wallet.publicKey, TOKEN_2022_PROGRAM_ID)
+    const initializeMetadataInstruction = createInitializeInstruction({
+        programId: TOKEN_2022_PROGRAM_ID,
+        mint: mintKeypair.publicKey,
+        metadata: mintKeypair.publicKey,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        uri: metadata.uri,
+        mintAuthority: wallet.publicKey,
+        updateAuthority: wallet.publicKey,
+    })
     const transaction = new Transaction().add(
-        SystemProgram.createAccount({
-            fromPubkey: wallet.publicKey,
-            newAccountPubkey: mintKeypair.publicKey,
-            space: mintLen,
-            lamports,
-            programId: TOKEN_2022_PROGRAM_ID,
-        }),
-        createInitializeMetadataPointerInstruction(mintKeypair.publicKey, wallet.publicKey, mintKeypair.publicKey, TOKEN_2022_PROGRAM_ID),
-        createInitializeMintInstruction(mintKeypair.publicKey, decimals, wallet.publicKey, wallet.publicKey, TOKEN_2022_PROGRAM_ID),
-        createInitializeInstruction({
-            programId: TOKEN_2022_PROGRAM_ID,
-            mint: mintKeypair.publicKey,
-            metadata: mintKeypair.publicKey,
-            name: metadata.name,
-            symbol: metadata.symbol,
-            uri: metadata.uri,
-            mintAuthority: wallet.publicKey,
-            updateAuthority: wallet.publicKey,
-        }),
+        createAccountInstruction,
+        initializeMetadataPointerInstruction,
+        // note: the above instructions are required before initializing the mint
+        initializeMintInstruction,
+        initializeMetadataInstruction
     );
     transaction.feePayer = wallet.publicKey;
     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     transaction.partialSign(mintKeypair);
     try {
-        await wallet.sendTransaction(transaction, connection);
-        console.log(`Token mint created at ${mintKeypair.publicKey.toBase58()} with signature ${transaction.signature}`);
+        const transactionSignature = await wallet.sendTransaction(transaction, connection);
+        console.log(`Token mint created at ${mintKeypair.publicKey.toBase58()} with signature ${transactionSignature}`);
     } catch (error) {
         console.error("Error sending transaction:", error);
         throw error;
     }
-    return transaction.signature?.toString() || ''
+    return mintKeypair.publicKey.toBase58() || ''
 }
 
 export async function mintToken(connection: Connection, wallet: WalletContextState, mintPublicKey: PublicKey, receiverWallet:string, amount: number): Promise<string> {

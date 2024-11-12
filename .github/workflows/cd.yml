@@ -1,0 +1,44 @@
+name: Build and Deploy to VM via Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Repo
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and Push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ketan27j/crypto-function:latest
+
+    - name: Verify Pushed Image
+      run: docker pull ketan27j/crypto-function:latest  # Replace with your Docker Hub username and repository
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          docker stop crypto-function || true
+          docker container prune -f
+          docker rmi crypto-function
+          docker image prune -f
+          docker pull ketan27j/crypto-function:latest
+          docker run -d --name crypto-function --env NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} --env DATABASE_URL=${{ secrets.DATABASE_URL }} --env JWT_SECRET=${{ secrets.JWT_SECRET }} --env AUTH_SECRET=${{ secrets.AUTH_SECRET }} --env SOLANA_ENDPOINT=${{ secrets.SOLANA_ENDPOINT }} --env GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} --env GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} --env GMAIL_USER=${{ secrets.GMAIL_USER }} --env GMAIL_PASSWORD=${{ secrets.GMAIL_PASSWORD }} --env RECLAIM_CALLBACK_URL=${{ secrets.RECLAIM_CALLBACK_URL }} --env RECLAIM_APP_SECRET=${{ secrets.RECLAIM_APP_SECRET }} ketan27j/crypto-function:latest

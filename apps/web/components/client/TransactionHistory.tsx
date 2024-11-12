@@ -47,7 +47,7 @@ export const TransactionHistory = (
       console.log('salaryDetails-history', salaryDetails);
       let formattedTransactions = salaryDetails.map(detail => ({
         senderName: detail.Sender.name, // You might want to fetch actual names
-        receiverName: (detail.Sender.name == detail.Receiver.name) ? '' : '- '+detail.Receiver.name, // You might want to fetch actual names
+        receiverName: (detail.Sender.name == detail.Receiver.name) ? '' : detail.Receiver.name+' - ', // You might want to fetch actual names
         senderWallet: detail.SenderWallet,
         receiverWallet: detail.ReceiverWallet,
         amount: detail.Amount,
